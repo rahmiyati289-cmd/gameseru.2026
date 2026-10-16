@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tantangan Rekam Suara Al-Qur'an</title>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #e0f2fe;
+      display: flex;
+      justify-content: center;
+      padding: 20px;
+    }
+    .game-card {
+      background: white;
+      border-radius: 20px;
+      padding: 24px;
+      max-width: 450px;
+      width: 100%;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    .arabic-text {
+      font-size: 24px;
+      line-height: 2;
+      direction: rtl;
+      background: #fafafa;
+      padding: 15px;
+      border-radius: 12px;
+      border: 1px solid #e2e8f0;
+      margin-bottom: 15px;
+    }
+    .translation {
+      font-size: 13px;
+      color: #475569;
+      margin-bottom: 20px;
+      text-align: justify;
+    }
+    .record-btn {
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      background: #059669;
+      color: white;
+      border: none;
+      font-size: 32px;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(5, 150, 105, 0.4);
+      transition: transform 0.2s, background-color 0.2s;
+    }
+    .record-btn.recording {
+      background: #dc2626;
+      animation: pulse 1.2s infinite;
+    }
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.08); }
+      100% { transform: scale(1); }
+    }
+    .controls {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      margin-top: 20px;
+    }
+    .action-btn {
+      background: #f1f5f9;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: bold;
+      color: #334155;
+    }
+  </style>
+</head>
+<body>
+
+<div class="game-card">
+  <h2>Tantangan Rekam Suara</h2>
+  <h3>Q.S. Al-Ma'idah / 5: 87</h3>
+
+  <div class="arabic-text">
+    يَٰٓأَيُّهَا ٱلَّذِينَ ءَامَنُوا۟ لَا تُحَرِّمُوا۟ طَيِّبَٰتِ مَآ أَحَلَّ ٱللَّهُ لَكُمْ وَلَا تَعْتَدُوٓا۟ ۚ إِنَّ ٱللَّهَ لَا يُحِبُّ ٱلْمُعْتَدِينَ
+  </div>
+
+  <div class="translation">
+    "Wahai orang-orang yang beriman! Janganlah kamu mengharamkan apa yang baik yang telah dihalalkan Allah kepadamu, dan janganlah kamu melampaui batas. Sesungguhnya Allah tidak menyukai orang-orang yang melampaui batas."
+  </div>
+
+  <p id="status-text">Status: Siap Merekam</p>
+
+  <div class="controls">
+    <button class="action-btn" onclick="playAudio()">🔊 Dengarkan</button>
+    <button class="record-btn" id="recordBtn" onclick="toggleRecording()">🎙️</button>
+    <button class="action-btn" onclick="playUserRecording()">▶️ Hasil Rekaman</button>
+  </div>
+</div>
+
+<script>
+  let mediaRecorder;
+  let audioChunks = [];
+  let audioBlob;
+  let audioUrl;
+  let userAudio;
+  let isRecording = false;
+
+  async function toggleRecording() {
+    const btn = document.getElementById('recordBtn');
+    const status = document.getElementById('status-text');
+
+    if (!isRecording) {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      mediaRecorder = new MediaRecorder(stream);
+      audioChunks = [];
+
+      mediaRecorder.ondataavailable = event => audioChunks.push(event.data);
+      mediaRecorder.onstop = () => {
+        audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+        audioUrl = URL.createObjectURL(audioBlob);
+        userAudio = new Audio(audioUrl);
+      };
+
+      mediaRecorder.start();
+      isRecording = true;
+      btn.classList.add('recording');
+      status.innerText = "Status: Merekam...";
+    } else {
+      mediaRecorder.stop();
+      isRecording = false;
+      btn.classList.remove('recording');
+      status.innerText = "Status: Rekaman Selesai!";
+    }
+  }
+
+  function playUserRecording() {
+    if (userAudio) {
+      userAudio.play();
+    } else {
+      alert("Belum ada suara yang direkam!");
+    }
+  }
+
+  function playAudio() {
+    alert("Memutar contoh bacaan murottal.");
+  }
+</script>
+
+</body>
+</html>
